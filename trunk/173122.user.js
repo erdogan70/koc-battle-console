@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           KOC Power Tools
 // @namespace      mat
-// @version        20150801a
+// @version        20150817a
 // @include        *.kingdomsofcamelot.com/*main_src.php*
 // @description    Enhancements and bug fixes for Kingdoms of Camelot
 // @icon  		http://www.gravatar.com/avatar/f9c545f386b902b6fe8ec3c73a62c524?r=PG&s=60&default=identicon
@@ -15,7 +15,7 @@
 // @grant       GM_log
 // @grant       GM_registerMenuCommand
 // @license			http://creativecommons.org/licenses/by-nc-sa/3.0/
-// @releasenotes 	<p>Fixed auto build defence packet amount option, and save settings by user</p>
+// @releasenotes 	<p>Update for Greek Fire and new troop types</p>
 // ==/UserScript==
 //Fixed weird bug with koc game
 if (window.self.location != window.top.location) {
@@ -26,7 +26,7 @@ if (window.self.location != window.top.location) {
 //This value is used for statistics (https://nicodebelder.eu/kocReportView/Stats.html).
 //Please change it to your project name.
 var SourceName = "Barbarossa's Power Tools";
-var Version = '20150801a';
+var Version = '20150817a';
 var Title = 'KOC Power Tools';
 var DEBUG_BUTTON = true;
 var DEBUG_TRACE = false;
@@ -336,6 +336,7 @@ var AutoTrainOptions = {
 	doSpikes:			{1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false},
 	doXbows:			{1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false},
 	doTrebs:			{1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false},
+	doGreek:			{1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false},
 	troopType:			{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
 	keepFood:				{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
 	keepWood:				{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
@@ -1808,11 +1809,12 @@ var Rpt = {
 			i = uW.cm.UNIT_TYPES[ui];
 			unitImg[i] = '<img src='+IMGURL+'units/unit_' + i + '_30.jpg></TD><TD>' + uW.unitcost['unt' + i][0];
 		}
-		unitImg[53] = '<img src='+IMGURL+'units/unit_53_30.png></TD><TD>Crossbows';
-		unitImg[55] = '<img src='+IMGURL+'units/unit_55_30.png></TD><TD>Trebuchet';
-		unitImg[60] = '<img src='+IMGURL+'units/unit_60_30.png></TD><TD>Trap';
-		unitImg[61] = '<img src='+IMGURL+'units/unit_61_30.png></TD><TD>Caltrops';
-		unitImg[62] = '<img src='+IMGURL+'units/unit_62_30.png></TD><TD>Spiked Barrier';
+		unitImg[53] = '<img src='+IMGURL+'units/unit_53_30.jpg></TD><TD>Crossbows';
+		unitImg[55] = '<img src='+IMGURL+'units/unit_55_30.jpg></TD><TD>Trebuchet';
+		unitImg[60] = '<img src='+IMGURL+'units/unit_60_30.jpg></TD><TD>Trap';
+		unitImg[61] = '<img src='+IMGURL+'units/unit_61_30.jpg></TD><TD>Caltrops';
+		unitImg[62] = '<img src='+IMGURL+'units/unit_62_30.jpg></TD><TD>Spiked Barrier';
+		unitImg[63] = '<img src='+IMGURL+'units/unit_63_30.jpg></TD><TD>Greek Fire';
 		unitImg[100] = '<img src='+IMGURL+'units/tower_30.jpg width=30></TD><TD>Defensive Tower';
 		for (var i = 101; i < 111; i++)
 			unitImg[i] = '<img src='+IMGURL+'units/unit_' + i + '_30.jpg></TD><TD>' + eval("uW.g_js_strings.monsterUnitsNames.m" + i);
@@ -1827,11 +1829,12 @@ var Rpt = {
 			i = uW.cm.UNIT_TYPES[ui];
 			unitImg2[i] = '<img src='+IMGURL+'units/unit_' + i + '_30.jpg></TD><TD>';
 		}
-		unitImg2[53] = '<img src='+IMGURL+'units/unit_53_30.png></TD><TD>';
-		unitImg2[55] = '<img src='+IMGURL+'units/unit_55_30.png></TD><TD>';
-		unitImg2[60] = '<img src='+IMGURL+'units/unit_60_30.png></TD><TD>';
-		unitImg2[61] = '<img src='+IMGURL+'units/unit_61_30.png></TD><TD>';
-		unitImg2[62] = '<img src='+IMGURL+'units/unit_62_30.png></TD><TD>';
+		unitImg2[53] = '<img src='+IMGURL+'units/unit_53_30.jpg></TD><TD>';
+		unitImg2[55] = '<img src='+IMGURL+'units/unit_55_30.jpg></TD><TD>';
+		unitImg2[60] = '<img src='+IMGURL+'units/unit_60_30.jpg></TD><TD>';
+		unitImg2[61] = '<img src='+IMGURL+'units/unit_61_30.jpg></TD><TD>';
+		unitImg2[62] = '<img src='+IMGURL+'units/unit_62_30.jpg></TD><TD>';
+		unitImg2[63] = '<img src='+IMGURL+'units/unit_63_30.jpg></TD><TD>';
 		unitImg2[100] = '<img src='+IMGURL+'units/tower_30.jpg width=30></TD><TD>';
 		for (var i = 101; i < 111; i++)
 			unitImg2[i] = '<img src='+IMGURL+'units/unit_' + i + '_30.jpg></TD><TD>';
@@ -1989,7 +1992,7 @@ var Rpt = {
 							}
 						}
 					}
-					for (var i = 60; i < 63; i++) {
+					for (var i = 60; i <= 63; i++) {
 						if (rslt['fght']["s0"]['f' + i]) {
 							if (rslt['fght']["s0"]['f' + i][0] > rslt['fght']["s0"]['f' + i][1]) {
 								if (i == 60) {
@@ -2000,6 +2003,9 @@ var Rpt = {
 								};
 								if (i == 62) {
 									defmight += 2 * (parseInt(rslt['fght']["s0"]['f62'][0]))
+								};
+								if (i == 63) {
+									defmight += 10 * (parseInt(rslt['fght']["s0"]['f63'][0]))
 								};
 							} else {
 								defmight += 0;
@@ -2031,7 +2037,7 @@ var Rpt = {
 							}
 						}
 					}
-					for (var i = 60; i < 63; i++) {
+					for (var i = 60; i <= 63; i++) {
 						if (rslt['fght']["s0"]['f' + i]) {
 							if (rslt['fght']["s0"]['f' + i][0] > rslt['fght']["s0"]['f' + i][1]) {
 								if (i == 60) {
@@ -2042,6 +2048,9 @@ var Rpt = {
 								};
 								if (i == 62) {
 									defmight += 2 * (parseInt(rslt['fght']["s0"]['f62'][0]) - parseInt(rslt['fght']["s0"]['f62'][1]))
+								};
+								if (i == 63) {
+									defmight += 10 * (parseInt(rslt['fght']["s0"]['f63'][0]) - parseInt(rslt['fght']["s0"]['f63'][1]))
 								};
 							} else {
 								defmight += 0;
@@ -2739,7 +2748,7 @@ var Rpt = {
 						var EQ = rslt['equipmentDrop']; 
 						var Faction = ['briton','fey','druid'];
 						var Quality = ['Simple','Common', 'Uncommon','Rare','Epic','Wondrous'];
-						var ImgType = ["weapon", "chestArmor", "helmet", "feet", "shield", "ring", "ring1", "ring2", "pendant", "cloak"];
+						var ImgType = ["weapon", "chestArmor", "helmet", "feet", "shield", "ring1", "ring2", "pendant", "cloak"];
 						var equipname = Quality[EQ.rarity]+" "+EQ.subtype+" of "+eval("unsafeWindow.g_js_strings.effects.suffix_"+EQ["effects"][5]["id"])+" ("+Faction[EQ.faction-1]+")";
 						var equiptitle = "";
 						for (var i in EQ["effects"]) {
@@ -3001,7 +3010,7 @@ var Rpt = {
 				tc = '',
 				tf = '';
 			if (rslt['frt'] || (rslt['blds'] && rslt['blds']['b30'])) {
-				if (rslt['frt']['f53'] != undefined || rslt['frt']['f55'] != undefined || rslt['frt']['f60'] != undefined || rslt['frt']['f61'] != undefined || rslt['frt']['f62'] != undefined || (rslt['blds'] && rslt['blds']['b30'])) {
+				if (rslt['frt']['f53'] != undefined || rslt['frt']['f55'] != undefined || rslt['frt']['f60'] != undefined || rslt['frt']['f61'] != undefined || rslt['frt']['f62'] != undefined || rslt['frt']['f63'] != undefined || (rslt['blds'] && rslt['blds']['b30'])) {
 					th = '<TABLE class=ptTab><TR><TH colspan=3 align=left>Defenses Found</TH></TR>';
 					if (rslt['blds'] && rslt['blds']['b30'])
 						tc += '<TR><TD>' + unitImg[100] + '</TD><TD align=right>(Level ' + rslt['blds']['b30'] + ')</TD></TR>';
@@ -3015,6 +3024,8 @@ var Rpt = {
 						tc += '<TR><TD>' + unitImg[61] + '</TD><TD align=right>' + addCommas(rslt['frt']['f61']) + '</TD></TR>';
 					if (rslt['frt']['f62'] != undefined)
 						tc += '<TR><TD>' + unitImg[62] + '</TD><TD align=right>' + addCommas(rslt['frt']['f62']) + '</TD></TR>';
+					if (rslt['frt']['f63'] != undefined)
+						tc += '<TR><TD>' + unitImg[63] + '</TD><TD align=right>' + addCommas(rslt['frt']['f63']) + '</TD></TR>';
 					tf = '</TABLE>';
 				}
 			}
@@ -7288,6 +7299,7 @@ Tabs.Info = {
 			u60: "1",
 			u61: "2",
 			u62: "3",
+			u63: "10",
 		};
 		var t = Tabs.Info;
 		var m = '<DIV style="max-height:735px; height:735px;"><DIV class=ptstat>PROVINCE MAP</div><DIV id=ptProvMap style="height:' + provMapCoords.imgHeight + 'px; width:' + provMapCoords.imgWidth + 'px; background-repeat:no-repeat; background-image:url(\'' + URL_PROVINCE_MAP + '\')"></div>';
@@ -7927,7 +7939,7 @@ Tabs.Train = {
 		}
 	},
 	nextAuto: null,
-	defenseOptions: "<option value='53'>Crossbow</option><option value='55'>Trebuchet</option><option value='60'>Trap</option><option value='61'>Caltrop</option><option value='62'>Spiked Barrier</option>",
+	defenseOptions: "<option value='53'>Crossbow</option><option value='55'>Trebuchet</option><option value='60'>Trap</option><option value='61'>Caltrop</option><option value='62'>Spiked Barrier</option><option value='63'>Greek Fire</option>",
 	prevCityNo: 0,
 	init: function (div) {
 		var t = Tabs.Train;
@@ -7977,8 +7989,11 @@ Tabs.Train = {
         <option value='55'>" + uW.fortcost.frt55[0] + "</option>\
         <option value='60'>" + uW.fortcost.frt60[0] + "</option>\
         <option value='61'>" + uW.fortcost.frt61[0] + "</option>\
-        <option value='62'>" + uW.fortcost.frt62[0] + "</option>\
-      </select> &nbsp; (<span id=pttdSpMax></span>)</td>\
+        <option value='62'>" + uW.fortcost.frt62[0] + "</option>";
+		if (uW.fortcost.frt63) {
+			s+= "<option value='63'>" + uW.fortcost.frt63[0] + "</option>";
+		}	
+      s += "</select> &nbsp; (<span id=pttdSpMax></span>)</td>\
       <TR><TD align=right>" + uW.g_js_strings.modal_walls_train.numdefbuild + ": </td><TD><INPUT id='pttdInpPS' size=5 type='text' value='0'\></td>\
         <TD><INPUT id='pttdButMaxPS' type=submit value='" + uW.g_js_strings.commonstr.max + "'\> &nbsp; (" + uW.g_js_strings.commonstr.max + "\
          <span id=pttdSpMaxPS>0</span>)</td></tr>\
@@ -7999,6 +8014,7 @@ Tabs.Train = {
 	 <TR><TD align=center colspan=3><INPUT type=CHECKBOX id=chkDoSpikes" + (AutoTrainOptions.doSpikes[1] ? ' CHECKED ' : '') + ">Spiked Barriers</TD></TR>\
    	 <TR><TD align=center colspan=3><INPUT type=CHECKBOX id=chkDoXbows" + (AutoTrainOptions.doXbows[1] ? ' CHECKED ' : '') + ">Crossbows</TD></TR>\
    	 <TR><TD align=center colspan=3><INPUT type=CHECKBOX id=chkDoTrebs" + (AutoTrainOptions.doTrebs[1] ? ' CHECKED ' : '') + ">Defensive Trebuchets</TD></TR>\
+   	 <TR><TD align=center colspan=3><INPUT type=CHECKBOX id=chkDoGreek" + (AutoTrainOptions.doGreek[1] ? ' CHECKED ' : '') + ">Greek Fire</TD></TR>\
       </table></td></tr></table></div></div>\
       <TABLE align=center width=425 class=ptTab><TR><TD><div id=ptTrainStatus style='overflow-y:auto; max-height:26px; height: 78px;'></div></td></tr></table>\
       <div style='height: 330px; background: #e8ffe8'>\
@@ -8064,6 +8080,7 @@ Tabs.Train = {
 		document.getElementById('chkDoSpikes').addEventListener('change', t.clickCheckDoSpikes, false);
 		document.getElementById('chkDoXbows').addEventListener('change', t.clickCheckDoXbows, false);
 		document.getElementById('chkDoTrebs').addEventListener('change', t.clickCheckDoTrebs, false);
+		document.getElementById('chkDoGreek').addEventListener('change', t.clickCheckDoGreek, false);
 		
 		document.getElementById('ptDefPacket').addEventListener ('change', function (e) {
 			if (isNaN(e.target.value)) { e.target.value = 50; }
@@ -8322,6 +8339,14 @@ Tabs.Train = {
 		t.displayCityStats();
 		t.changeDefSelect();
 	},
+	clickCheckDoGreek: function () {
+		var t = Tabs.Train;
+		var cityNo = Cities.byID[t.selectedCity.id].idx + 1;
+		AutoTrainOptions.doGreek[cityNo] = (document.getElementById('chkDoGreek').checked)
+		saveAutoTrainOptions();
+		t.displayCityStats();
+		t.changeDefSelect();
+	},
 	limitingFactor: null,
 	changeTroopSelect: function () {
 		var t = Tabs.Train;
@@ -8339,6 +8364,7 @@ Tabs.Train = {
 				actualuc[r] = uc[r];
 		}
 		if (id == 16) actualuc[5] = uc[11]["34001"];
+		if (id == 27) actualuc[5] = uc[11]["34003"];
 		var max = 9999999999;
 		if ((t.stats.food / actualuc[1]) < max) {
 			max = t.stats.food / actualuc[1];
@@ -8360,6 +8386,11 @@ Tabs.Train = {
 			if ((t.stats.yew / actualuc[5]) < max) {
 				max = t.stats.yew / actualuc[5];
 				t.limitingFactor = 'yew';
+			}
+		if (id == 27)
+			if ((t.stats.corrupter / actualuc[5]) < max) {
+				max = t.stats.corrupter / actualuc[5];
+				t.limitingFactor = 'corrupter';
 			}
 		if ((t.stats.idlePop / uc[6]) < max) {
 			max = t.stats.idlePop / uc[6];
@@ -8424,8 +8455,8 @@ Tabs.Train = {
 		}
 
 		if (t.limitingFactor) {
-			document.getElementById('ptttr_' + t.limitingFactor).className = 'boldRed';
-			document.getElementById('ptttr2_' + t.limitingFactor).className = 'boldRed';
+			if (document.getElementById('ptttr_' + t.limitingFactor)) document.getElementById('ptttr_' + t.limitingFactor).className = 'boldRed';
+			if (document.getElementById('ptttr2_' + t.limitingFactor)) document.getElementById('ptttr2_' + t.limitingFactor).className = 'boldRed';
 		}
 		t.updateTopTroops();
 		if (isPrestige && t.lastTroopSelect > 12 && t.lastTroopSelect < 16)
@@ -8492,6 +8523,7 @@ Tabs.Train = {
 		document.getElementById('chkDoSpikes').checked = AutoTrainOptions.doSpikes[Cities.byID[t.selectedCity.id].idx + 1];
 		document.getElementById('chkDoXbows').checked = AutoTrainOptions.doXbows[Cities.byID[t.selectedCity.id].idx + 1];
 		document.getElementById('chkDoTrebs').checked = AutoTrainOptions.doTrebs[Cities.byID[t.selectedCity.id].idx + 1];
+		document.getElementById('chkDoGreek').checked = AutoTrainOptions.doGreek[Cities.byID[t.selectedCity.id].idx + 1];
 	},
 	changeDefSelect: function () {
 		var t = Tabs.Train;
@@ -8514,8 +8546,16 @@ Tabs.Train = {
 			max = t.stats.stone / uc[3];
 		if ((t.stats.ore / uc[4]) < max)
 			max = t.stats.ore / uc[4];
-		if ((t.stats.idlePop / uc[6]) < max)
-			max = t.stats.idlePop / uc[6];
+
+		if (id == 63) {  // greek fire requires median oil
+			var unitMedian = uW.fortcost['frt'+id][11]["34002"];
+			var median = parseIntNan(Seed.items.i34002);
+			
+			if ((median / unitMedian) < max) {
+				max = parseInt(median / unitMedian);
+			}
+		}
+
 		t.stats.MaxDefTrain = parseIntNan(max);
 		if (t.stats.MaxDefTrain < 0)
 			t.stats.MaxDefTrain = 0;
@@ -8548,7 +8588,7 @@ Tabs.Train = {
 			}
 		}
 		var spaceEach = parseInt(uW.fortstats["unt" + id][5]);
-		if (id < 60)
+		if (id < 60 || id==63)
 			var spaceAvail = t.stats.wallSpace - t.stats.wallSpaceUsed - t.stats.wallSpaceQueued;
 		else
 			var spaceAvail = t.stats.fieldSpace - t.stats.fieldSpaceUsed - t.stats.fieldSpaceQueued;
@@ -8660,7 +8700,9 @@ Tabs.Train = {
 		t.stats.wood = parseInt(Seed.resources['city' + cityId].rec2[0] / 3600);
 		t.stats.stone = parseInt(Seed.resources['city' + cityId].rec3[0] / 3600);
 		t.stats.ore = parseInt(Seed.resources['city' + cityId].rec4[0] / 3600);
-		t.stats.yew = parseInt(Seed.items.i34001);
+		t.stats.yew = parseIntNan(Seed.items.i34001);
+		t.stats.corrupter = parseIntNan(Seed.items.i34003);
+		t.stats.median = parseIntNan(Seed.items.i34002);
 		t.stats.gold = Seed.citystats['city' + cityId].gold[0];
 		if (Options.maxIdlePop)
 			t.stats.idlePop = parseInt(Seed.citystats['city' + cityId].pop[0]);
@@ -8684,7 +8726,9 @@ Tabs.Train = {
 			if (i == 5) m += '<TD width=75px><SPAN id=ptttr_gold>' + uW.resourceinfo['rec0'] + '</span></td><TD width=60px><SPAN id=ptttr2_gold>' + addCommas(Seed.citystats['city' + cityId].gold[0]) + '</span></td>';
 			if (i == 6) m += '<TD width=75px><SPAN id=ptttr_pop>Available Population</td><TD width=60px><SPAN id=ptttr2_pop>' + addCommas(t.stats.idlePop) + '</td>';
 			if (i == 7) m += '<TD width=75px><SPAN id=ptttr_yew>Pristine Yew Branch</td><TD width=60px><SPAN id=ptttr2_yew>' + addCommas(t.stats.yew) + '</td>';
-			if (i > 7) m += '<TD width=75px></td><TD width=60px></td>';
+			if (i == 8) m += '<TD width=75px><SPAN id=ptttr_corrupter>Corrupter Seeds</td><TD width=60px><SPAN id=ptttr2_yew>' + addCommas(t.stats.corrupter) + '</td>';
+			if (i == 9) m += '<TD width=75px><SPAN id=ptttr_corrupter>Median Oil</td><TD width=60px><SPAN id=ptttr2_median>' + addCommas(t.stats.median) + '</td>';
+			if (i > 9) m += '<TD width=75px></td><TD width=60px></td>';
 			m += '</tr>';
 		}
 		m += '</table>';
@@ -8808,7 +8852,7 @@ Tabs.Train = {
 				t.stats.Dqueued = q.length;
 				first = true;
 				for (i = 0; i < q.length; i++) {
-					if (q[i][0] < 60)
+					if (q[i][0] < 60 || q[i][0]==63)
 						t.stats.wallSpaceQueued += parseInt(uW.fortstats["unt" + q[i][0]][5]) * parseInt(q[i][1]);
 					else
 						t.stats.fieldSpaceQueued += parseInt(uW.fortstats["unt" + q[i][0]][5]) * parseInt(q[i][1]);
@@ -8892,13 +8936,10 @@ Tabs.Train = {
 		params.frtTmp = frtTmp;
 		params.frtNeeded = frtNeeded;
 		params.frtid = frtid;
-		new AjaxRequest(uW.g_ajaxpath + "ajax/cancelFortifications.php" + uW.g_ajaxsuffix, {
+		new MyAjaxRequest(uW.g_ajaxpath + "ajax/cancelFortifications.php" + uW.g_ajaxsuffix, {
 			method: "post",
 			parameters: params,
-			onSuccess: function (message) {
-				if (rslt.updateSeed)
-					unsafeWindow.update_seed(rslt.updateSeed);
-				var rslt = eval("(" + message.responseText + ")");
+			onSuccess: function (rslt) {
 				if (rslt.ok) {
 					var k = 0;
 					for (var j = 0; j < Seed.queue_fort["city" + cityId].length; j++) {
@@ -9201,6 +9242,63 @@ Tabs.Train = {
 			}
 		}
 	},
+	
+	doAutoGreek: function (cityNo) {
+		var t = Tabs.Train;
+		wall = {};
+		var cityId = Cities.cities[cityNo - 1].id
+		var cityID = 'city' + cityId;
+		getWallInfo(cityId, wall);
+		availableSpace = wall.wallSpace - wall.wallSpaceUsed - wall.wallSpaceQueued;
+		var MaxSlots = wall.wallLevel;
+		if (MaxSlots > 5) MaxSlots = 5;
+		if (availableSpace > 0 && wall.slotsBusy < MaxSlots) {
+			var food = parseInt(Seed.resources['city' + cityId].rec1[0] / 3600);
+			var wood = parseInt(Seed.resources['city' + cityId].rec2[0] / 3600);
+			var stone = parseInt(Seed.resources['city' + cityId].rec3[0] / 3600);
+			var ore = parseInt(Seed.resources['city' + cityId].rec4[0] / 3600);
+			availableSlots = MaxSlots - wall.slotsBusy;
+			var foodRes = AutoTrainOptions.keepFood[cityNo];
+			var woodRes = AutoTrainOptions.keepWood[cityNo];
+			var stoneRes = AutoTrainOptions.keepStone[cityNo];
+			var oreRes = AutoTrainOptions.keepOre[cityNo];
+			var availFood = food - foodRes;
+			var availWood = wood - woodRes;
+			var availStone = stone - stoneRes;
+			var availOre = ore - oreRes;
+			secsPerGreek = Cities.byID[cityId]['Def63Time'];
+			if (secsPerGreek > 0 && availableSpace >= 1 && availableSlots > 0) {
+				if (availFood > 1000 && availWood > 2500 & availStone > 1500 & availOre > 1500) {
+					var numberToTrain = 9999999999;
+					if ((availFood / 1000) < numberToTrain)
+						numberToTrain = parseInt(availFood / 1000);
+					if ((availWood / 2500) < numberToTrain)
+						numberToTrain = parseInt(availWood / 2500);
+					if ((availStone / 1500) < numberToTrain)
+						numberToTrain = parseInt(availStone / 1500);
+					if ((availOre / 1500) < numberToTrain)
+						numberToTrain = parseInt(availOre / 1500);
+						
+					var unitMedian = uW.fortcost['frt63'][11]["34002"]; // median oil
+					var median = parseIntNan(Seed.items.i34002);
+					if ((median / unitMedian) < numberToTrain) 
+						numberToTrain = parseInt(median / unitMedian);
+						
+					if ((availableSpace / 1) < numberToTrain)
+						numberToTrain = parseInt(availableSpace / 1);
+					if (numberToTrain > AutoTrainOptions.packetAmount)
+						numberToTrain = AutoTrainOptions.packetAmount;
+					logit('Building ' + numberToTrain + ' Greek Fire in city ' + Cities.byID[cityId].name);
+					try {
+						doDefTrain(cityId, 0, 63, numberToTrain);
+					} catch (err) {
+						logit(inspect(err, 8, 1));
+					}
+				}
+			}
+		}
+	},
+	
 	doAutoTrain: function (cityNo) {
 		var t = Tabs.Train;
 		clearTimeout(t.nextAuto);
@@ -9228,6 +9326,8 @@ Tabs.Train = {
 			t.doAutoCrossbows(cityNo);
 		if (AutoTrainOptions.doTrebs[cityNo])
 			t.doAutoTrebs(cityNo);
+		if (AutoTrainOptions.doGreek[cityNo])
+			t.doAutoGreek(cityNo);
 			
 		if (cityNo == Cities.numCities)
 			t.nextAuto = setTimeout(function () {
@@ -9337,7 +9437,7 @@ function getWallInfo(cityId, objOut) {
 	var fort = Seed.fortifications["city" + cityId];
 	for (k in fort) {
 		var id = parseInt(k.substr(4));
-		if (id < 60)
+		if (id < 60 || id==63)
 			objOut.wallSpaceUsed += parseInt(uW.fortstats["unt" + id][5]) * parseInt(fort[k]);
 		else
 			objOut.fieldSpaceUsed += parseInt(uW.fortstats["unt" + id][5]) * parseInt(fort[k]);
@@ -9346,7 +9446,7 @@ function getWallInfo(cityId, objOut) {
 	objOut.slotsBusy = q.length;
 	if (q!=null && q.length > 0 ){
 		for (i=0; i<q.length; i++){
-			if (q[i][0] < 60)
+			if (q[i][0] < 60 || q[i][0]==63)
 				objOut.wallSpaceQueued += parseInt(uW.fortstats["unt"+ q[i][0]][5]) * parseInt(q[i][1]);
 			else
 				objOut.fieldSpaceQueued += parseInt(uW.fortstats["unt"+ q[i][0]][5]) * parseInt(q[i][1]);
@@ -9885,7 +9985,7 @@ Tabs.OverView = {
 			for (var b = 1; b < (wall + 1); b++) {
 				WallSpace += (b * 3000)
 			};
-			max = WallSpace / 2 / 2 - parseInt(Seed.fortifications[city]["fort53"]) - parseInt(Seed.fortifications[city]["fort55"]);
+			max = WallSpace / 2 / 2 - (parseInt(Seed.fortifications[city]["fort53"])*2) - (parseInt(Seed.fortifications[city]["fort55"])*4) - (parseIntNan(Seed.fortifications[city]["fort63"]));
 			m += '<TD width=79 style="background:#FFFFFF">' + Seed.fortifications[city]["fort53"];
 			if (wall >= 6 && blacksmith >= 6 && fletching >= 5 && max > 0) m += '<br>Left: ' + max + '</td>';
 			else if (t.showReq) {
@@ -9907,7 +10007,7 @@ Tabs.OverView = {
 			for (var b = 1; b < (wall + 1); b++) {
 				WallSpace += (b * 3000)
 			};
-			max = WallSpace / 2 / 4 - parseInt(Seed.fortifications[city]["fort53"]) - parseInt(Seed.fortifications[city]["fort55"]);
+			max = WallSpace / 2 / 4 - (parseInt(Seed.fortifications[city]["fort53"])*2) - (parseInt(Seed.fortifications[city]["fort55"])*4) - (parseIntNan(Seed.fortifications[city]["fort63"]));
 			m += '<TD width=79 style="background:#FFFFFF">' + Seed.fortifications[city]["fort55"];
 			if (wall >= 8 && blacksmith >= 8 && fletching >= 7 && geometry >= 7 && max > 0) m += '<br>Left: ' + max + '</td>';
 			else if (t.showReq) {
@@ -9918,12 +10018,31 @@ Tabs.OverView = {
 				m += '</td>';
 			}
 		}
+		if (uW.fortcost['frt63']) {
+			m += '</tr><TR valign=top align=right><TD width=85 style="background-color:' + Colors.OverviewDarkRow + ';">' + uW.fortcost['frt63'][0] + '</td>';
+			for (i = 0; i < Seed.cities.length; i++) {
+				city = 'city' + Seed.cities[i][0];
+				if (Seed.buildings[city].pos1 == null) wall = 0;
+				else wall = parseInt(Seed.buildings[city].pos1[1]);
+				var WallSpace = 0;
+				for (var b = 1; b < (wall + 1); b++) {
+					WallSpace += (b * 3000)
+				};
+				max = WallSpace / 2 / 1 - (parseInt(Seed.fortifications[city]["fort53"])*2) - (parseInt(Seed.fortifications[city]["fort55"])*4) - (parseIntNan(Seed.fortifications[city]["fort63"]));
+				m += '<TD width=79 style="background:#FFFFFF">' + Seed.fortifications[city]["fort63"];
+				if (wall >= 8 && max > 0) m += '<br>Left: ' + max + '</td>';
+				else if (t.showReq) {
+					if (wall < 8) m += '<br><FONT COLOR= "CC0000">Wall: ' + wall + '(8)</font>';
+					m += '</td>';
+				}
+			}	
+		}
 		m += '<TR valign=top align=right><TD width=85 style="background-color:' + Colors.OverviewDarkRow + ';">Wall defences</td>';
 		for (i = 0; i < Seed.cities.length; i++) {
 			city = 'city' + Seed.cities[i][0];
 			if (Seed.buildings[city].pos1 == null) wall = 0;
 			else wall = parseInt(Seed.buildings[city].pos1[1]);
-			build = (parseInt(Seed.fortifications[city]["fort53"]) * 2) + (parseInt(Seed.fortifications[city]["fort55"]) * 4);
+			build = (parseInt(Seed.fortifications[city]["fort53"]) * 2) + (parseInt(Seed.fortifications[city]["fort55"]) * 4) + (parseIntNan(Seed.fortifications[city]["fort63"]));
 			var WallSpace = 0;
 			for (var b = 1; b < (wall + 1); b++) {
 				WallSpace += (b * 3000)
@@ -10272,6 +10391,7 @@ Tabs.OverView = {
 			u60: "1",
 			u61: "2",
 			u62: "3",
+			u63: "10",
 		};
 		rownum = 0;
 		u += '<STYLE>.xtabH {background:#ffffe8; border:none; padding-right: 5px; padding-left: 5px; margin-left:10px; }\
@@ -10337,7 +10457,7 @@ Tabs.OverView = {
 			i = unsafeWindow.cm.UNIT_TYPES[ui];
 			unitsarr.push(i);
 		}	
-		for (r = 0; r < unitsarr.length + 13; r++) 
+		for (r = 0; r < unitsarr.length + 14; r++) 
 			infoRows[r] = [];
 		for (i = 0; i < Cities.numCities; i++) {
 			cityID = 'city' + Cities.cities[i].id;
@@ -10367,6 +10487,9 @@ Tabs.OverView = {
 			infoRows[unitsarr.length + 12][i] = Cities.cities[i]['Def62Time'];
 			if (infoRows[unitsarr.length + 12][i] > 0)
 				infoRows[unitsarr.length + 12][i] = 3600 / infoRows[unitsarr.length + 12][i];
+			infoRows[unitsarr.length + 13][i] = Cities.cities[i]['Def63Time'];
+			if (infoRows[unitsarr.length + 13][i] > 0)
+				infoRows[unitsarr.length + 13][i] = 3600 / infoRows[unitsarr.length + 12][i];
 		}
 		u += "<td align=center valign=bottom width=60px><b>Total</td></tr>";
 		var rownum = 0;
@@ -10387,6 +10510,7 @@ Tabs.OverView = {
 		_displayrow("Spike", infoRows[unitsarr.length + 10]);
 		_displayrow("Trap", infoRows[unitsarr.length + 11]);
 		_displayrow("Caltrop", infoRows[unitsarr.length + 12]);
+		_displayrow("Greek Fire", infoRows[unitsarr.length + 13]);
 		u += '</tr></table>';
 		u += '<DIV class=ptstat>MISC INFO</div><TABLE><TR><TD width="200px" style="background-color:#FFFFFF; border:none">KofC client version: ' + KOCversion + '</td>';
 		u += '<TD style="background-color:#FFFFFF; border:none"><INPUT id=ptButDebug type=submit name="SEED" value="DEBUG"></tr></td></table></div>';
@@ -13670,26 +13794,44 @@ Tabs.Accuracy = {
 		var keyz = unsafeWindow.Object.keys(z);
 		var troopa, troopb;
 		var unitsarr = [];
-		for (var ui in unsafeWindow.cm.UNIT_TYPES){
-			unitsarr.push(0);
-		}	
+		for (ui=0;ui<keyz.length;ui++) {
+			if (keyz[ui]) {
+				var i = uW.cm.UNIT_TYPES[keyz[ui]];
+				if (i==null) {
+					if (keyz[ui]=="FORTIFICATION_TYPE_ARCHERTOWER") { i = 53; }
+					else if (keyz[ui]=="FORTIFICATION_TYPE_GREEK_FIRE")  { i = 63; }
+					else { i = 0; } // no idea what this is, but we need it in the array
+				}
+				unitsarr.push(i);
+			}	
+		}
 		
-		for (iu = 1; iu < unitsarr.length + 2; iu++) {
-			if (iu < 13) main += '<TD>' + uW.unitcost['unt' + iu][0] + '</td>';
-			else if (iu == 13) main += '<TD>WM Crossbow</td>';
-			else if (iu > 19) main += '<TD>' + uW.unitcost['unt' + (iu + 1)][0] + '</td>';
-			else main += '<TD>' + uW.unitcost['unt' + (iu - 1)][0] + '</td>';
+		for (ui = 0; ui < unitsarr.length; ui++) {
+			var u = unitsarr[ui];
+			if (u<50) {
+				main += '<TD align=right><b>' + uW.unitcost['unt'+u][0] + '</b></td>';
+			}
+			else {
+				var rowtext = uW.fortcost['frt'+u][0];
+				if (u==53) { rowtext = 'Crossbows'; } 
+				main += '<TD align=right><b>' + rowtext + '</b></td>';
+			}
 		}	
 		main += '</tr>';
 
-		for (iu = 1; iu < unitsarr.length + 2; iu++) {
-			if (iu < 13) main += '<TR><TD>' + uW.unitcost['unt' + iu][0] + '</td>';
-			else if (iu == 13) main += '<TR><TD>WM Crossbow</td>';
-			else if (iu > 19) main += '<TR><TD>' + uW.unitcost['unt' + (iu + 1)][0] + '</td>';
-			else main += '<TR><TD>' + uW.unitcost['unt' + (iu - 1)][0] + '</td>';
-			troopa = keyz[iu - 1];
-			for (ju = 1; ju < unitsarr.length + 2; ju++) {
-				troopb = keyz[ju - 1];
+		for (ui = 0; ui < unitsarr.length; ui++) {
+			var u = unitsarr[ui];
+			if (u<50) {
+				main += '<TR><TD align=right><b>' + uW.unitcost['unt'+u][0] + '</b></td>';
+			}
+			else {
+				var rowtext = uW.fortcost['frt'+u][0];
+				if (u==53) { rowtext = 'Crossbows'; } 
+				main += '<TR><TD align=right><b>' + rowtext + '</b></td>';
+			}
+			troopa = keyz[ui];
+			for (uj = 0; uj < unitsarr.length; uj++) {
+				troopb = keyz[uj];
 				if (!z[troopa] || !z[troopa][troopb])
 					main += '<TD>???</td>';
 				else
@@ -15661,6 +15803,7 @@ function getTroopDefTrainEstimates(cityID, city) {
 	city.Def60Time = ((city.wallLevel > 3 && city.blacksmithLevel > 3 && city.poisonedEdgeLevel > 1) ? (90 / dsf) : 0);
 	city.Def61Time = ((city.wallLevel > 0 && city.metalAlloysLevel > 0) ? (30 / dsf) : 0);
 	city.Def62Time = ((city.wallLevel > 1 && city.blacksmithLevel > 1 && city.loggingLevel > 1) ? (60 / dsf) : 0);
+	city.Def63Time = ((city.wallLevel > 7) ? (60 / dsf) : 0);
 }
 
 function officerId2String(oid) {
@@ -16119,6 +16262,7 @@ var fortNamesShort = {
 		60: "Trap",
 		61: "Caltrops",
 		62: "Spiked Barrier",
+		63: "Greek Fire",
 	}
 	// returns {count, maxlevel}
 
@@ -16605,6 +16749,14 @@ function doDefTrain(cityId, siege, unitId, num, notify) {
 		onSuccess: function (rslt) {
 			if (rslt.ok) {
 				uW.seed.queue_fort["city" + cityId].push([unitId, num, rslt.initTS, parseInt(rslt.initTS) + time, 0, time, rslt.fortifyId]);
+				if (siege==26) {
+					Seed.items.i26 = parseInt(Seed.items.i26)-1;
+					unsafeWindow.ksoItems[26].subtract();
+				}
+				if (unitId==63) {
+					Seed.items.i34002 = parseInt(Seed.items.i34002)-num;
+					unsafeWindow.ksoItems[34002].subtract(num);
+				}				
 				if (notify != null)
 					setTimeout(function () {
 						notify(null);
@@ -18450,5 +18602,58 @@ function MarchPopup (rslt,rslt2,march) {
 
 	MarchPop.show(true);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ptStartup();
