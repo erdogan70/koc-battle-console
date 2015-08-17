@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name           KOC Power Bot
-// @version        20150727a
+// @version        20150817a
 // @namespace      mat
 // @homepage       https://greasyfork.org/en/scripts/892-koc-power-bot
 // @include        *.kingdomsofcamelot.com/*main_src.php*
@@ -20,7 +20,7 @@
 // @grant       GM_registerMenuCommand
 // @license			http://creativecommons.org/licenses/by-nc-sa/3.0/
 // @description    Automated features for Kingdoms of Camelot
-// @releasenotes 	<p>Option to Delete All Incoming Scout Reports</p>
+// @releasenotes 	<p>Update for new troop types and items</p>
 // ==/UserScript==
 
 //Fixed weird bug with koc game
@@ -34,7 +34,7 @@ if(window.self.location != window.top.location){
    }
 }
 
-var Version = '20150727a';
+var Version = '20150817a';
 
 var http =  window.location.protocol+"\/\/";
 
@@ -11495,10 +11495,12 @@ cm.MARCH_TYPES = {
             document.getElementById('pbraidtabRes').innerHTML = '<span style="color: #ff6">R ('+ t.stopcount + ')</span>'
            else if (t.resuming == false && t.stopping == false && t.deleting == false)
             document.getElementById('pbraidtabRes').innerHTML = '<span style="color: #CCC">R ('+ t.stopcount + ')</span>'
-           if (t.resuming == false && t.stopping == false && t.deleting == false && t.stopcount !=0)
-            document.getElementById('pbraidtabDel').innerHTML = '<span style="color: #ff6">D ('+ t.stopcount + ')</span>'
-           else if (t.resuming == false && t.stopping == false && t.deleting == false)
-            document.getElementById('pbraidtabDel').innerHTML = '<span style="color: #CCC">D ('+ t.stopcount + ')</span>'
+			if (!Options.RemoveDeleteTab) {
+				if (t.resuming == false && t.stopping == false && t.deleting == false && t.stopcount !=0)
+					document.getElementById('pbraidtabDel').innerHTML = '<span style="color: #ff6">D ('+ t.stopcount + ')</span>'
+				else if (t.resuming == false && t.stopping == false && t.deleting == false)
+					document.getElementById('pbraidtabDel').innerHTML = '<span style="color: #CCC">D ('+ t.stopcount + ')</span>'
+			}		
   },
    
        
@@ -14999,7 +15001,7 @@ Tabs.Reassign = {
                 break;
             }
 		}
-        for (var c=0; t< Seed.cities.length;c++) {
+        for (var c=0; c< Seed.cities.length;c++) {
             if ( parseInt(Seed.cities[c][0]) == city) var cityname = Seed.cities[c][1];
         }
 		
@@ -15106,6 +15108,7 @@ Tabs.AutoTrain = {
             if(y == "22") faux = 1;
             if(y == "24") faux = 1;
             if(y == "25") faux = 1;
+            if(y == "28") faux = 1;
 
 			if (faux==0)
 				m+='<option value="'+y+'">'+unsafeWindow.unitcost['unt'+y][0]+'</option>';
@@ -15459,6 +15462,9 @@ Tabs.AutoTrain = {
 			if (unitId == 16) {
 				if (parseInt(unsafeWindow.seed.items.i34001)/cost[11]["34001"] < t.amt) t.amt = Math.floor(parseInt(unsafeWindow.seed.items.i34001)/cost[11]["34001"]);
 			}
+			if (unitId == 27) {
+				if (parseInt(unsafeWindow.seed.items.i34003)/cost[11]["34003"] < t.amt) t.amt = Math.floor(parseInt(unsafeWindow.seed.items.i34003)/cost[11]["34003"]);
+			}
 		}
 		if(parseInt(t.amt) < parseInt(TrainOptions.Threshold[t.city])) t.amt = 0;
     }
@@ -15550,6 +15556,11 @@ Tabs.AutoTrain = {
 	   actionLog('Insufficient amount of special items to train ' +unsafeWindow.unitcost["unt" + unitId][0]);
 	   return;
 	}
+    if(params.type == 27)
+	if (parseInt(unsafeWindow.seed.items.i34003) < num) {
+	   actionLog('Insufficient amount of special items to train ' +unsafeWindow.unitcost["unt" + unitId][0]);
+	   return;
+	}
     var profiler = new unsafeWindow.cm.Profiler("ResponseTime", "train.php");
     new MyAjaxRequest(unsafeWindow.g_ajaxpath + "ajax/train.php" + unsafeWindow.g_ajaxsuffix, {
         method: "post",
@@ -15569,6 +15580,8 @@ Tabs.AutoTrain = {
 				unsafeWindow.seed.citystats["city" + cityId].pop[0] = parseInt(unsafeWindow.seed.citystats["city" + cityId].pop[0]) - Math.ceil(parseInt(unsafeWindow.unitcost["unt" + unitId][6]) * MORE_WITH_LESS_FACTOR) * parseInt(num);
 				if (unitId == 16)
 					unsafeWindow.seed.items.i34001 = Number(parseInt(unsafeWindow.seed.items.i34001) - (parseInt(unsafeWindow.unitcost["unt" + unitId][11]["34001"]) * parseInt(num)));
+				if (unitId == 27)
+					unsafeWindow.seed.items.i34003 = Number(parseInt(unsafeWindow.seed.items.i34003) - (parseInt(unsafeWindow.unitcost["unt" + unitId][11]["34003"]) * parseInt(num)));
 				unsafeWindow.seed.queue_unt["city" + cityId].push([unitId, num, rslt.initTS, parseInt(rslt.initTS) + time, 0, time, null,inPrestige]);
 				setTimeout (notify, 5000);
 				for (postcity in Seed.cities) if (Seed.cities[postcity][0] == params.cid) logcity = Seed.cities[postcity][1];
@@ -20468,7 +20481,6 @@ var DeleteReports = {
             }
             if (Options.DeleteMsgs3 && unsafeWindow.seed.allianceDiplomacies){
 				if (unsafeWindow.seed.allianceDiplomacies.friendlyToThem) {
-
 					for (l in unsafeWindow.seed.allianceDiplomacies.friendlyToThem) {
 						if(reports[k].side1AllianceId == unsafeWindow.seed.allianceDiplomacies.friendlyToThem[l].allianceId)
 							deletes1.push(k.substr(2));
