@@ -15,7 +15,7 @@
 // @grant			unsafeWindow
 // @version			20150817a
 // @license			http://creativecommons.org/licenses/by-nc-nd/3.0/
-// @releasenotes 	<p>Update for Greek Fire, and minor bug fixes/p>
+// @releasenotes 	<p>Update for Greek Fire, and minor bug fixes</p>
 // ==/UserScript==
 
 //	+-------------------------------------------------------------------------------------------------------+
