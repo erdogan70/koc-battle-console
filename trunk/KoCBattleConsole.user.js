@@ -13,9 +13,9 @@
 // @grant			GM_xmlhttpRequest
 // @grant			GM_getResourceText
 // @grant			unsafeWindow
-// @version			20150612a
+// @version			20150817a
 // @license			http://creativecommons.org/licenses/by-nc-nd/3.0/
-// @releasenotes 	<p>Option to display fixed with TR widgets (8 per row)</p>
+// @releasenotes 	<p>Update for Greek Fire, and minor bug fixes/p>
 // ==/UserScript==
 
 //	+-------------------------------------------------------------------------------------------------------+
@@ -23,10 +23,10 @@
 //	¦	It is licensed under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License:	¦
 //	¦	http://creativecommons.org/licenses/by-nc-nd/3.0													¦
 //	¦																										¦
-//	¦	June 2015 Barbarossa69 (www.facebook.com/barbarossa69)												¦
+//	¦	August 2015 Barbarossa69 (www.facebook.com/barbarossa69)											¦
 //	+-------------------------------------------------------------------------------------------------------+
 
-var Version = '20150612a'; 
+var Version = '20150817a'; 
 
 //Fix weird bug with koc game
 if (window.self.location != window.top.location){
@@ -202,7 +202,7 @@ var DebuffEffects = [17,18,19,20,22,21,23,29,39,50,54,61,30,40,51,31,41,52,42,63
 var AlternateSortOrder = [5,37,58,117,131,133,138,21,42,63,123,132,134,143,1,24,34,44,56,102,113,135,17,29,39,50,61,119,140,2,25,35,45,114,125,136,18,30,40,51,120,126,141,3,26,36,46,104,115,127,137,19,31,41,52,121,128,142,4,27,47,57,116,20,32,53,62,122,129,130,7,28,38,49,60,139,23,33,43,55,65,144,8,9,118,124,13,14,15,16,73,6,48,59,22,54,64];
 
 var guardTypes = ["wood", "ore", "food", "stone"];
-var tileTypes = {0:"Bog",10:"Grassland",11:"Lake",20:"Wood",30:"Hill",40:"Mountain",50:"Plain",51:"City",52:"Ruin",53:"Misted City",54:"Dark Forest",55:"Merc Camp"};
+var tileTypes = {0:"Bog",10:"Grassland",11:"Lake",20:"Wood",30:"Hill",40:"Mountain",50:"Plain",51:"City",52:"Ruin",53:"Misted City",54:"Dark Forest",55:"Merc Camp",56:"Nomad Camp"};
 
 var IMGURL = uW.stimgUrl+"img/";
  
@@ -2687,14 +2687,16 @@ function readOptions (){
 }
 
 function onUnload (){
-	Options.WinPos = mainPop.getLocation();
-	Options.WinSize = mainPop.getDimensions();
-	if (popMon) { Options.MonPos = popMon.getLocation(); }
-	if (popInc) { Options.IncPos = popInc.getLocation(); }
-	if (popOut) { Options.OutPos = popOut.getLocation(); }
-	if (popDef && !Options.DashboardMode) { Options.DefPos = popDef.getLocation(); }
-	if (popLog) { Options.LogPos = popLog.getLocation(); }
-	saveOptions();
+	if (uW.btLoaded) {
+		Options.WinPos = mainPop.getLocation();
+		Options.WinSize = mainPop.getDimensions();
+		if (popMon) { Options.MonPos = popMon.getLocation(); }
+		if (popInc) { Options.IncPos = popInc.getLocation(); }
+		if (popOut) { Options.OutPos = popOut.getLocation(); }
+		if (popDef && !Options.DashboardMode) { Options.DefPos = popDef.getLocation(); }
+		if (popLog) { Options.LogPos = popLog.getLocation(); }
+		saveOptions();
+	}	
 }
 
 function unixTime (){
@@ -3422,7 +3424,7 @@ function BuildIncomingDisplay() {
 				marchchamp+="</table>";
 				z +='<table cellspacing=0><tr><td class="xtab trimg" style="font-weight:normal;align:left;" id="btmarchchamp'+a.mid+'td"><input type="hidden" id="btmarchchamp'+a.mid+'effects" value="'+marchchamp+'" /><a><img id="btmarchchamp'+a.mid+'" onMouseover="btCreateChampionPopUp(this,'+a.toCityId+');" height=14 style="vertical-align:text-top;" src="'+ShieldImage+'"></a></td><td class=xtab>Champion: '+a["championInfo"].name+'&nbsp;</td></tr></table>';
 			}	
-			if (a["knt"]) z +='<span class=xtab>'+uW.g_js_strings.commonstr.knight+' (Atk:'+ a["knt"]["cbt"]+')</span> ';
+			if (a["knt"] && a["knt"]["cbt"]) z +='<span class=xtab>'+uW.g_js_strings.commonstr.knight+' (Atk:'+ a["knt"]["cbt"]+')</span> ';
 			if (a["unts"]) { 
 				for (var ui in uW.cm.UNIT_TYPES){
 					i = uW.cm.UNIT_TYPES[ui];
@@ -4874,7 +4876,7 @@ function PaintCityInfo(cityId) {
 				marchchamp+="</table>";
 				z +='<table cellspacing=0><tr><td class="xtab trimg" style="font-weight:normal;align:left;" id="btcitymarchchamp'+a.mid+'td"><input type="hidden" id="btcitymarchchamp'+a.mid+'effects" value="'+marchchamp+'" /><a><img id="btcitymarchchamp'+a.mid+'" onMouseover="btCreateChampionPopUp(this,'+a.toCityId+');" height=14 style="vertical-align:text-top;" src="'+ShieldImage+'"></a></td><td class=xtab>Champion: '+a["championInfo"].name+'&nbsp;</td></tr></table>';
 			}	
-			if (a["knt"]) z +='<span class=xtab>'+uW.g_js_strings.commonstr.knight+' (Atk:'+ a["knt"]["cbt"]+')</span> ';
+			if (a["knt"] && a["knt"]["cbt"]) z +='<span class=xtab>'+uW.g_js_strings.commonstr.knight+' (Atk:'+ a["knt"]["cbt"]+')</span> ';
 			if (a["unts"]) { 
 				for (var ui in uW.cm.UNIT_TYPES){
 					i = uW.cm.UNIT_TYPES[ui];
@@ -4930,7 +4932,7 @@ function PaintCityInfo(cityId) {
 	var a = Object.keys(d);
 	for (var c = 0; c < a.length; c++) {
 		var f = parseInt(a[c].split("fort")[1]);
-		if (f < 60) { WallDefences.push(a[c]) } else { FieldDefences.push(a[c])	}
+		if (f < 60 || f==63) { WallDefences.push(a[c]) } else { FieldDefences.push(a[c])	}
 	}
 
     var b = getCityBuilding(cityId, 19);
